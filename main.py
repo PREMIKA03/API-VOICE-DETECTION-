@@ -1,15 +1,13 @@
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, Form, HTTPException
 from pydantic import BaseModel
 from typing import Optional
 
 app = FastAPI(title="AI Generated Voice Detection API")
 
-# Request body model
 class AudioRequest(BaseModel):
     audio_url: Optional[str] = None
     audio_base64: Optional[str] = None
 
-# Friendly home route
 @app.get("/")
 def home():
     return {
@@ -17,20 +15,27 @@ def home():
         "example_endpoint": "/detect-voice"
     }
 
-# Main POST endpoint
+# Accept JSON OR form-data
 @app.post("/detect-voice")
-def detect_voice(data: AudioRequest, x_api_key: str = Header(None)):
-
-    # 1️⃣ Validate API key
+def detect_voice(
+    audio_base64: Optional[str] = Form(None),
+    audio_url: Optional[str] = Form(None),
+    x_api_key: str = Header(None)
+):
+    # Validate API key
     if x_api_key != "test123":
         raise HTTPException(status_code=401, detail="Invalid API key")
 
-    # 2️⃣ Validate that audio is provided
-    if not data.audio_base64 and not data.audio_url:
+    # Validate that audio is provided
+    if not audio_base64 and not audio_url:
         raise HTTPException(status_code=400, detail="No audio provided. Send audio_base64 or audio_url.")
 
-    # 3️⃣ Dummy AI classification logic
+    # Dummy AI classification
     classification_result = "AI-generated"
     confidence_score = 0.92
 
-    # 4️⃣ Return structured JSON response
+    return {
+        "classification": classification_result,
+        "confidence": confidence_score,
+        "status": "success"
+    }
