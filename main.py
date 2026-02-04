@@ -8,16 +8,10 @@ class AudioRequest(BaseModel):
     audio_url: Optional[str] = None
     audio_base64: Optional[str] = None
 
-
-@app.get("/")
-def home():
-    return {"message": "API Running Successfully"}
-
-
 @app.post("/detect-voice")
-def detect_voice(data: AudioRequest, authorization: str = Header(None)):
+def detect_voice(data: AudioRequest, x_api_key: str = Header(None)):
 
-    if authorization != "test123":
+    if x_api_key != "test123":
         return {"status": "error", "message": "Invalid API key"}
 
     return {
